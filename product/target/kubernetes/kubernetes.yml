@@ -1,0 +1,67 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.quarkus.io/commit-id: a9350eb0381938a3fa0268b58961677c1a8a426a
+    app.quarkus.io/build-timestamp: 2022-06-25 - 03:21:52 +0000
+  labels:
+    app.kubernetes.io/name: product
+    app.kubernetes.io/version: 1.0.0-SNAPSHOT
+  name: product
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/name: product
+    app.kubernetes.io/version: 1.0.0-SNAPSHOT
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.quarkus.io/commit-id: a9350eb0381938a3fa0268b58961677c1a8a426a
+    app.quarkus.io/build-timestamp: 2022-06-25 - 03:21:52 +0000
+  labels:
+    app.kubernetes.io/name: product
+    app.kubernetes.io/version: 1.0.0-SNAPSHOT
+  name: product
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: product
+      app.kubernetes.io/version: 1.0.0-SNAPSHOT
+  template:
+    metadata:
+      annotations:
+        app.quarkus.io/commit-id: a9350eb0381938a3fa0268b58961677c1a8a426a
+        app.quarkus.io/build-timestamp: 2022-06-25 - 03:21:52 +0000
+      labels:
+        app.kubernetes.io/name: product
+        app.kubernetes.io/version: 1.0.0-SNAPSHOT
+    spec:
+      containers:
+        - command:
+            - java
+            - -Dquarkus.http.host=0.0.0.0
+            - -Djava.util.logging.manager=org.jboss.logmanager.LogManager
+            - -jar
+            - /deployments/quarkus-run.jar
+          env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: JAVA_APP_JAR
+              value: /deployments/quarkus-run.jar
+          image: dyangcht/product:1.0.0-SNAPSHOT
+          imagePullPolicy: Always
+          name: product
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
